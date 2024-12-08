@@ -28,10 +28,14 @@ def main() -> None:
                 return
         for obj in updatable:
             obj.update(dt)
-        for obj in asteroids:
-            if obj.check_collision(player):
+        for asteroid in asteroids:
+            if asteroid.check_collision(player):
                 print("Game Over!")
                 return
+            for bullet in shots:
+                if asteroid.check_collision(bullet):
+                    asteroid.split()
+                    bullet.kill()
         _ = screen.fill(color="black")
         for obj in drawable:
             obj.draw(screen)

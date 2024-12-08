@@ -5,7 +5,13 @@ from pygame.key import ScancodeWrapper
 from pygame.math import Vector2
 
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS, PLAYER_SHOOT_SPEED, PLAYER_SPEED, PLAYER_TURN_SPEED
+from constants import (
+    PLAYER_RADIUS,
+    PLAYER_SHOOT_COOLDOWN,
+    PLAYER_SHOOT_SPEED,
+    PLAYER_SPEED,
+    PLAYER_TURN_SPEED,
+)
 from shot import Shot
 
 
@@ -13,6 +19,7 @@ class Player(CircleShape):
     def __init__(self, x: float, y: float) -> None:
         super().__init__(x, y, radius=PLAYER_RADIUS)
         self.rotation: float = 0
+        self.timer: float = 0
 
     # in the player class
     def triangle(self) -> list[pygame.Vector2]:
@@ -48,12 +55,15 @@ class Player(CircleShape):
             self.move(dt=-dt)
         if keys[pygame.K_SPACE]:
             self.shoot()
+        self.timer -= dt
 
     def move(self, dt: float) -> None:
         forward: pygame.Vector2 = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
 
     def shoot(self) -> None:
-        shot: Shot = Shot(self.position.x, self.position.y)
-        v: Vector2 = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
-        shot.velocity = v
+        if self.timer <= 0:
+            shot: Shot = Shot(self.position.x, self.position.y)
+            v: Vector2 = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+            shot.velocity = v
+            self.timer = PLAYER_SHOOT_COOLDOWN
